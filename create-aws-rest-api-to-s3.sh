@@ -45,7 +45,7 @@ EOF
 
 #----IAM-------------------------------------------
 # First create the initial policy file of "API Gateway"
-cat <<'EOF' >${IAM_ROLE_NAME}-policy.json
+cat <<'EOF' >/tmp/${IAM_ROLE_NAME}-policy.json
 {
   "Version": "2012-10-17",
   "Statement": [
@@ -64,7 +64,7 @@ EOF
 IAM_ROLE_ID=$(
   aws iam create-role \
     --role-name "${IAM_ROLE_NAME}" \
-    --assume-role-policy-document file://${IAM_ROLE_NAME}-policy.json | jq -r '.Role.RoleId'
+    --assume-role-policy-document file:///tmp/${IAM_ROLE_NAME}-policy.json | jq -r '.Role.RoleId'
 )
 
 # Check
@@ -72,6 +72,11 @@ if [[ -z $IAM_ROLE_ID ]]; then
   echo 'Could not get ${IAM_ROLE_ID}.'
   exit 255
 fi
+
+cat <<EOF
+The following AWS objects have been created.
+* IAM_ROLE_ID                 = "${IAM_ROLE_ID}"
+EOF
 
 aws iam attach-role-policy \
   --role-name "${IAM_ROLE_NAME}" \
@@ -93,6 +98,11 @@ if [[ -z $APIGATEWAY_REST_API_ID ]]; then
   echo 'Could not get ${APIGATEWAY_REST_API_ID}.'
   exit 255
 fi
+
+cat <<EOF
+The following AWS objects have been created.
+* APIGATEWAY_REST_API_ID      = "${APIGATEWAY_REST_API_ID}"
+EOF
 
 #---API Gateway[Resource]--------------------------
 # Save "Root Resource ID"
@@ -122,6 +132,16 @@ if [[ -z $APIGATEWAY_RESOURCE_ID_S3_OBJECT_KEY ]]; then
   echo 'Could not get ${APIGATEWAY_RESOURCE_ID_S3_OBJECT_KEY}.'
   exit 255
 fi
+
+cat <<EOF
+The following AWS objects have been created.
+* APIGATEWAY_RESOURCE_ID_S3_BUCKET_NAME = "${APIGATEWAY_RESOURCE_ID_S3_BUCKET_NAME}"
+EOF
+
+cat <<EOF
+The following AWS objects have been created.
+* APIGATEWAY_RESOURCE_ID_S3_OBJECT_KEY  = "${APIGATEWAY_RESOURCE_ID_S3_OBJECT_KEY}"
+EOF
 
 #---API Gateway[Method]----------------------------
 # Enable GET for REST API Resources
@@ -189,7 +209,6 @@ cat <<'EOF'
 +----------------------------+
 EOF
 
-
 #=================================================
 # The MIT License
 #
@@ -201,5 +220,3 @@ EOF
 #
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #=================================================
-
-
