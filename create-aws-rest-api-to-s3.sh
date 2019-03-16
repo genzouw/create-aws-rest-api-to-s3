@@ -35,10 +35,10 @@ The following tools are required to run this script:
 
 Run the script with the following environment variable values:
 
-* IAM_ROLE_NAME           = "${IAM_ROLE_NAME}"
-* S3_BUCKET_NAME          = "${S3_BUCKET_NAME}"
-* APIGATEWAY_RESTAPI_NAME = "${APIGATEWAY_RESTAPI_NAME}"
-* AWS_DEFAULT_REGION      = "${AWS_DEFAULT_REGION}"
+* IAM_ROLE_NAME="${IAM_ROLE_NAME}"
+* S3_BUCKET_NAME="${S3_BUCKET_NAME}"
+* APIGATEWAY_RESTAPI_NAME="${APIGATEWAY_RESTAPI_NAME}"
+* AWS_DEFAULT_REGION="${AWS_DEFAULT_REGION}"
 
 
 EOF
@@ -75,7 +75,7 @@ fi
 
 cat <<EOF
 The following AWS objects have been created.
-* IAM_ROLE_ID                 = "${IAM_ROLE_ID}"
+* IAM_ROLE_ID="${IAM_ROLE_ID}"
 EOF
 
 aws iam attach-role-policy \
@@ -101,7 +101,7 @@ fi
 
 cat <<EOF
 The following AWS objects have been created.
-* APIGATEWAY_REST_API_ID      = "${APIGATEWAY_REST_API_ID}"
+* APIGATEWAY_REST_API_ID="${APIGATEWAY_REST_API_ID}"
 EOF
 
 #---API Gateway[Resource]--------------------------
@@ -135,12 +135,12 @@ fi
 
 cat <<EOF
 The following AWS objects have been created.
-* APIGATEWAY_RESOURCE_ID_S3_BUCKET_NAME = "${APIGATEWAY_RESOURCE_ID_S3_BUCKET_NAME}"
+* APIGATEWAY_RESOURCE_ID_S3_BUCKET_NAME="${APIGATEWAY_RESOURCE_ID_S3_BUCKET_NAME}"
 EOF
 
 cat <<EOF
 The following AWS objects have been created.
-* APIGATEWAY_RESOURCE_ID_S3_OBJECT_KEY  = "${APIGATEWAY_RESOURCE_ID_S3_OBJECT_KEY}"
+* APIGATEWAY_RESOURCE_ID_S3_OBJECT_KEY="${APIGATEWAY_RESOURCE_ID_S3_OBJECT_KEY}"
 EOF
 
 #---API Gateway[Method]----------------------------
@@ -149,9 +149,9 @@ aws apigateway put-method \
   --rest-api-id "${APIGATEWAY_REST_API_ID}" \
   --resource-id "${APIGATEWAY_RESOURCE_ID_S3_OBJECT_KEY}" \
   --http-method GET \
-  --authorization-type AWS_IAM \
+  --authorization-type NONE \
   --request-parameters "method.request.path.s3_bucket_name=true,method.request.path.s3_object_key=true" \
-  --no-api-key-required \
+  --api-key-required \
   ;
 
 #---API Gateway[Method Request/Response]-----------
@@ -203,10 +203,41 @@ aws apigateway put-integration-response \
   --status-code 200 \
   --response-templates '{"application/json": ""}'
 
-cat <<'EOF'
+cat <<EOF
 +----------------------------+
 |   Process Successful !!!   |
 +----------------------------+
+
+If you want to deploy, please execute the following command.
+
+----------------------------------------
+aws apigateway create-deployment \\
+  --rest-api-id "${APIGATEWAY_REST_API_ID}" \\
+  --stage-name "prod" \\
+  --stage-description 'Production' \\
+  --description 'Production'
+----------------------------------------
+
+If you want to all, please execute the following command.
+
+----------------------------------------
+aws apigateway delete-rest-api \\
+  --rest-api-id "${APIGATEWAY_REST_API_ID}"
+
+aws s3 rb \\
+  --force "s3://${S3_BUCKET_NAME}"
+
+aws iam detach-role-policy \\
+  --role-name ${IAM_ROLE_NAME} \\
+  --policy-arn "arn:aws:iam::aws:policy/AmazonS3FullAccess"
+
+aws iam delete-role \\
+  --role-name \\
+  "${IAM_ROLE_NAME}"
+----------------------------------------
+
+Let's have a nice day!
+
 EOF
 
 #=================================================
