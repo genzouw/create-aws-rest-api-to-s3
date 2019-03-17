@@ -1,6 +1,6 @@
 # create-aws-rest-api-to-s3
 
-This script is a Bash shell script for accessing "S3" from "AWS API Gateway".
+This is a Bash shell script that automatically builds an environment for accessing "S3" from "AWS API Gateway".
 
 
 ## Author Information
@@ -27,6 +27,7 @@ Please see to "Requirements".
 ## Usage
 
 Before execution, change the following variables to your preferred values.
+These are used for naming when creating "AWS" objects.
 
 * `IAM_ROLE_NAME`
 * `S3_BUCKET_NAME`
@@ -47,10 +48,10 @@ $ IAM_ROLE_NAME='value1' \
 
 Environmental Variables are follows:
 
-`IAM_ROLE_NAME`
-`S3_BUCKET_NAME`
-`APIGATEWAY_RESTAPI_NAME`
-`AWS_DEFAULT_REGION`
+* `IAM_ROLE_NAME`
+* `S3_BUCKET_NAME`
+* `APIGATEWAY_RESTAPI_NAME`
+* `AWS_DEFAULT_REGION`
 
 
 ## Relase Note
